@@ -1,0 +1,439 @@
+active_modules:
+  api:
+    connections:
+      evse_manager:
+        - implementation_id: evse
+          module_id: evse_manager
+    module: API
+  auth:
+    config_module:
+      connection_timeout: 30
+      prioritize_authorization_over_stopping_transaction: true
+      selection_algorithm: PlugEvents
+    connections:
+      evse_manager:
+        - implementation_id: evse
+          module_id: evse_manager
+      token_provider:
+        - implementation_id: auth_provider
+          module_id: ocpp
+        - implementation_id: main
+          module_id: token_provider_rfid
+      token_validator:
+        - implementation_id: auth_validator
+          module_id: ocpp
+    module: Auth
+  energy_manager:
+    config_module:
+      debug: false
+      nominal_ac_voltage: 230
+      schedule_interval_duration: 15
+      schedule_total_duration: 24
+      slice_ampere: 0.5
+      slice_watt: 500
+      update_interval: 1
+    connections:
+      energy_trunk:
+        - implementation_id: energy_grid
+          module_id: grid_connection_point
+    module: EnergyManager
+  evse_manager:
+    config_module:
+      ac_enforce_hlc: false
+      ac_hlc_enabled: false
+      ac_hlc_use_5percent: true
+      ac_nominal_voltage: 230
+      ac_with_soc: false
+      autocharge_use_slac_instead_of_hlc: false
+      charge_mode: AC
+      connector_id: 1
+      connector_type: IEC62196Type2Cable
+      country_code: DE
+      dbg_hlc_auth_after_tstep: false
+      dc_isolation_voltage_V: 500
+      ev_receipt_required: false
+      evse_id: DE*PNX*E123456*1
+      evse_id_din: 49A80737A45678
+      hack_allow_bpt_with_iso2: false
+      hack_pause_imd_during_precharge: false
+      hack_present_current_offset: 0
+      hack_skoda_enyaq: false
+      hack_sleep_in_cable_check: 0
+      hack_sleep_in_cable_check_volkswagen: 0
+      has_ventilation: true
+      logfile_suffix: session_uuid
+      max_current_export_A: 32
+      max_current_import_A: 32
+      payment_enable_contract: false
+      payment_enable_eim: true
+      rcd_enabled: true
+      session_logging: true
+      session_logging_path: /tmp/logs
+      session_logging_xml: false
+      soft_over_current_measurement_noise_A: 0.5
+      soft_over_current_tolerance_percent: 10
+      switch_to_minimum_voltage_after_cable_check: false
+      three_phases: true
+    connections:
+      bsp:
+        - implementation_id: board_support
+          module_id: yeti_driver
+      hlc:
+        - implementation_id: charger
+          module_id: iso15118_charger
+      powermeter_grid_side:
+        - implementation_id: powermeter
+          module_id: yeti_driver
+      slac:
+        - implementation_id: main
+          module_id: slac
+    module: EvseManager
+  grid_connection_point:
+    config_module:
+      fuse_limit_A: 40
+      phase_count: 1
+    connections:
+      energy_consumer:
+        - implementation_id: energy_grid
+          module_id: evse_manager
+    module: EnergyNode
+  iso15118_charger:
+    config_implementation:
+      main:
+        device: eth1
+        mqtt_base_path: everest_external/iso15118/java
+    connections: {}
+    module: JsRiseV2G
+  ocpp:
+    config_module:
+      CertsPath: '""'
+      ChargePointConfigPath: '/mnt/user_data/user-config/ocpp/ocpp-config.json'
+      DatabasePath: '/mnt/user_data/user-config/ocpp'
+      EnableExternalWebsocketControl: false
+      MessageLogPath: /tmp/everest_ocpp_logs
+      PublishChargingScheduleDurationS: 600
+      PublishChargingScheduleIntervalS: 30
+      UserConfigPath: '/mnt/user_data/user-config/ocpp/user-config.json'
+    connections:
+      auth:
+        - implementation_id: main
+          module_id: auth
+      evse_manager:
+        - implementation_id: evse
+          module_id: evse_manager
+      reservation:
+        - implementation_id: reservation
+          module_id: auth
+      system:
+        - implementation_id: main
+          module_id: system
+    module: OCPP
+  persistent_store:
+    config_module:
+      sqlite_db_file_path: /mnt/user_data/everest_persistent_store.db
+    connections: {}
+    module: PersistentStore
+  setup:
+    config_module:
+      ap_interface: wlan0
+      ap_ipv4: 192.168.1.1/24
+      initialized_by_default: true
+      localization: true
+      online_check_host: lfenergy.org
+      release_metadata_file: release.json
+      setup_simulation: false
+      setup_wifi: true
+    connections:
+      store:
+        - implementation_id: main
+          module_id: persistent_store
+    module: Setup
+  slac:
+    config_implementation:
+      main:
+        ac_mode_five_percent: false
+        device: eth1
+        evse_id: PIONIX_SAYS_HELLO
+        nid: pionix!
+        number_of_sounds: 10
+        publish_mac_on_first_parm_req: false
+        publish_mac_on_match_cnf: true
+        set_key_timeout_ms: 500
+        sounding_attenuation_adjustment: 0
+    connections: {}
+    module: EvseSlac
+  system:
+    config_module:
+      DefaultRetries: 1
+      DefaultRetryInterval: 1
+    connections: {}
+    module: System
+  token_provider_rfid:
+    config_implementation:
+      main:
+        baud_rate: 115200
+        debug: false
+        read_timeout: 5
+        serial_port: /dev/ttyAMA2
+        timeout: 30
+    connections: {}
+    module: PN532TokenProvider
+  yeti_driver:
+    config_module:
+      baud_rate: 115200
+      caps_min_current_A: -1
+      control_mode: low
+      reset_gpio: 27
+      serial_port: /dev/serial0
+    connections: {}
+    module: YetiDriver
+'x-module-layout':
+  api:
+    position:
+      x: 13
+      y: 26
+    terminals:
+      bottom: []
+      left:
+        - id: evse_manager
+          interface: evse_manager
+          type: requirement
+      right:
+        - id: main
+          interface: empty
+          type: provide
+      top: []
+  auth:
+    position:
+      x: 42
+      y: 20
+    terminals:
+      bottom: []
+      left:
+        - id: evse_manager
+          interface: evse_manager
+          type: requirement
+        - id: token_provider
+          interface: auth_token_provider
+          type: requirement
+        - id: token_validator
+          interface: auth_token_validator
+          type: requirement
+      right:
+        - id: main
+          interface: auth
+          type: provide
+        - id: reservation
+          interface: reservation
+          type: provide
+      top: []
+  energy_manager:
+    position:
+      x: 29
+      y: -22
+    terminals:
+      bottom: []
+      left:
+        - id: energy_trunk
+          interface: energy
+          type: requirement
+      right:
+        - id: main
+          interface: energy_manager
+          type: provide
+      top: []
+  evse_manager:
+    position:
+      x: -3
+      y: 9
+    terminals:
+      bottom: []
+      left:
+        - id: bsp
+          interface: board_support_AC
+          type: requirement
+        - id: hlc
+          interface: ISO15118_charger
+          type: requirement
+        - id: imd
+          interface: isolation_monitor
+          type: requirement
+        - id: powermeter_car_side
+          interface: powermeter
+          type: requirement
+        - id: powermeter_grid_side
+          interface: powermeter
+          type: requirement
+        - id: powersupply_DC
+          interface: power_supply_DC
+          type: requirement
+        - id: slac
+          interface: slac
+          type: requirement
+      right:
+        - id: energy_grid
+          interface: energy
+          type: provide
+        - id: evse
+          interface: evse_manager
+          type: provide
+        - id: token_provider
+          interface: auth_token_provider
+          type: provide
+      top: []
+  grid_connection_point:
+    position:
+      x: 9
+      y: -21
+    terminals:
+      bottom: []
+      left:
+        - id: energy_consumer
+          interface: energy
+          type: requirement
+        - id: powermeter
+          interface: powermeter
+          type: requirement
+        - id: price_information
+          interface: energy_price_information
+          type: requirement
+      right:
+        - id: energy_grid
+          interface: energy
+          type: provide
+        - id: external_limits
+          interface: external_energy_limits
+          type: provide
+      top: []
+  iso15118_charger:
+    position:
+      x: -24
+      y: 7
+    terminals:
+      bottom: []
+      left: []
+      right:
+        - id: charger
+          interface: ISO15118_charger
+          type: provide
+        - id: main
+          interface: empty
+          type: provide
+      top: []
+  ocpp:
+    position:
+      x: 32
+      y: 7
+    terminals:
+      bottom: []
+      left:
+        - id: auth
+          interface: auth
+          type: requirement
+        - id: connector_zero_sink
+          interface: external_energy_limits
+          type: requirement
+        - id: evse_manager
+          interface: evse_manager
+          type: requirement
+        - id: reservation
+          interface: reservation
+          type: requirement
+        - id: system
+          interface: system
+          type: requirement
+      right:
+        - id: auth_provider
+          interface: auth_token_provider
+          type: provide
+        - id: auth_validator
+          interface: auth_token_validator
+          type: provide
+        - id: main
+          interface: ocpp_1_6_charge_point
+          type: provide
+      top: []
+  persistent_store:
+    position:
+      x: -23
+      y: -4
+    terminals:
+      bottom: []
+      left: []
+      right:
+        - id: main
+          interface: kvs
+          type: provide
+      top: []
+  setup:
+    position:
+      x: -6
+      y: -4
+    terminals:
+      bottom: []
+      left:
+        - id: store
+          interface: kvs
+          type: requirement
+      right:
+        - id: main
+          interface: empty
+          type: provide
+      top: []
+  slac:
+    position:
+      x: -23
+      y: 25
+    terminals:
+      bottom: []
+      left: []
+      right:
+        - id: main
+          interface: slac
+          type: provide
+      top: []
+  system:
+    position:
+      x: 13
+      y: -11
+    terminals:
+      bottom: []
+      left: []
+      right:
+        - id: main
+          interface: system
+          type: provide
+      top: []
+  token_provider_rfid:
+    position:
+      x: 13
+      y: 16
+    terminals:
+      bottom: []
+      left: []
+      right:
+        - id: main
+          interface: auth_token_provider
+          type: provide
+      top: []
+  yeti_driver:
+    position:
+      x: -23
+      y: 17
+    terminals:
+      bottom: []
+      left: []
+      right:
+        - id: board_support
+          interface: board_support_AC
+          type: provide
+        - id: powermeter
+          interface: powermeter
+          type: provide
+        - id: yeti_extras
+          interface: yeti_extras
+          type: provide
+        - id: yeti_simulation_control
+          interface: yeti_simulation_control
+          type: provide
+      top: []
