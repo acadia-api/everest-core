@@ -1,0 +1,53 @@
+power_W:
+  start_register: 3
+  function_code_start_reg: 4
+  num_registers: 2
+  multiplier: 0.1
+  exponent_register: 0
+  function_code_exp_reg: 4
+energy_Wh_import: # TODO: Should we use energy_Wh_export too?
+  start_register: 5
+  function_code_start_reg: 4
+  num_registers: 2
+  multiplier: 1
+  exponent_register: 0
+  function_code_exp_reg: 4
+voltage_V:
+  start_register: 0
+  function_code_start_reg: 4
+  num_registers: 1
+  multiplier: 0.1
+  exponent_register: 0
+  function_code_exp_reg: 4
+current_A:
+  start_register: 1
+  function_code_start_reg: 4
+  num_registers: 2
+  multiplier: 0.001
+  exponent_register: 0
+  function_code_exp_reg: 4
+frequency_Hz:
+  start_register: 7
+  function_code_start_reg: 4
+  num_registers: 1
+  multiplier: 0.1
+  exponent_register: 0
+  function_code_exp_reg: 4
+# Unused registers:
+#   8 = power factor value (multiplier=0.01)
+#   9 = alarm status (FFFF=alarm, 0000=no alarm)
+# Values not supplied by the meter:
+# energy_Wh_export:
+#   start_register: 0
+#   function_code_start_reg: 3
+#   num_registers: 0
+#   multiplier: 0.001
+#   exponent_register: 0
+#   function_code_exp_reg: 3
+# reactive_power_VAR:
+#   start_register: 0
+#   function_code_start_reg: 3
+#   num_registers: 0
+#   multiplier: 0.001
+#   exponent_register: 0
+#   function_code_exp_reg: 3
